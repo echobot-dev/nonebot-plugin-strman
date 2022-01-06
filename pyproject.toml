@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "nonebot-plugin-strman"
+version = "1.0.0"
+description = "A string management tool for NoneBot 2"
+authors = ["Satoshi Jek <jks15satoshi@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+nonebot2 = "^2.0.0-alpha.16"
+
+[tool.poetry.dev-dependencies]
+pylint = "^2.12.2"
+yapf = "^0.32.0"
+pytest = "^6.2.5"
+nonebug = "^0.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

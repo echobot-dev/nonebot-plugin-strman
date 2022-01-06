@@ -1,0 +1,6 @@
+[style]
+based_on_style = pep8
+arithmetic_precedence_indication = true
+blank_line_before_nested_class_or_def = true
+split_complex_comprehension = true
+indent_dictionary_value = true
