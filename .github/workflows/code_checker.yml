@@ -1,0 +1,41 @@
+name: Static code check
+
+on:
+  pull_request:
+    paths:
+      - nonebot_plugin_strman/**
+
+jobs:
+  pylint:
+    name: pylint check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          pip install -U pip
+          pip install .
+
+      - uses: dciborow/action-pylint@0.0.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          level: warning
+
+  pyright:
+    name: pyright check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          pip install -U pip
+          pip install .
+
+      - uses: jordemort/action-pyright@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          lib: true
