@@ -15,8 +15,23 @@ from nonebot_plugin_strman.config import Config
 
 
 class Parser(object):
+    """
+    字符串标签解析器。
+
+    属性：
+    - `respath`：字符串预设文件资源目录；
+    - `profile`：字符串预设文件名称；
+    - `message`：NoneBot 适配器对应 `Message` 实现。
+    """
 
     def __init__(self, bot: Type[Bot], **config: Any) -> None:
+        """
+        解析器初始化。
+        
+        参数：
+        - `bot: Type[Bot]`：bot 对象；
+        - `**config: Any`：配置参数。
+        """
         init_conf = nonebot.get_driver().config.dict()
         if config:
             init_conf.update(config)
@@ -27,7 +42,6 @@ class Parser(object):
         self.profile = conf.strman_profile
         self.message = self._get_message_impl(bot)
 
-    # TODO: Docstring
     def parse(self,
               tag: str,
               /,
@@ -41,10 +55,10 @@ class Parser(object):
         - `tag: str`：字符串标签；
         - `profile: Optional[str]`：字符串预设文件名称，默认为 `STRMAN_PROFILE`
           所指定的默认预设配置；
-        - `args, kwargs`：替换内容。
+        - `*args, **kwargs: Any`：替换内容。
         
         返回：
-        - `Message`
+        - `Message`：被对应适配器的 `Message` 对象包装的解析内容。
         """
         profile = profile if profile else self.profile
 
@@ -81,7 +95,6 @@ class Parser(object):
         raise ValueError(f'Adapter {adapter} not found. Maybe the adapter is '
                          'not installed, or the adapter is invalid.')
 
-    # TODO: Docstring
     @staticmethod
     def _tag_parse(tag: str, contents: Dict[str, Any]) -> str:
         """
@@ -93,8 +106,7 @@ class Parser(object):
 
         异常：
         - `KeyError`：字符串标签不存在；
-        - `TypeError`：字符串标签内容不是 JSON 所支持的除对象以外的任何类型；
-        - `ValueError`：
+        - `TypeError`：字符串标签内容类型错误。
         
         返回：
         - `str`：标签所指示的字符串内容。特别地，当 `contents` 中标签所对应的内
@@ -106,15 +118,13 @@ class Parser(object):
         except KeyError as err:
             raise KeyError(f'Tag {tag} is invalid.') from err
         else:
-            if isinstance(result, dict):
-                # TODO: Error message
-                raise ValueError('')
-            elif isinstance(result, list):
+            if isinstance(result, list):
                 if not any(isinstance(item, (dict, list)) for item in result):
                     return random.choice(result)
             elif isinstance(result, (str, int, float, bool)):
                 return str(result)
-            raise TypeError('The type of the tag content is not supported.')
+            raise TypeError(
+                f'The content of tag {tag} is with unsupported type.')
 
     def _load_profile(self, profile: Union[str, Path]) -> Dict[str, Any]:
         """
