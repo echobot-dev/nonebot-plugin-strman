@@ -79,9 +79,9 @@ class Parser(object):
         - `ValueError`：适配器不存在，或因适配器未安装，或获得的适配器名无效。
 
         返回：
-        - `Message`：适配器消息实现。
+        - `Type[Message]`：适配器消息实现。
         """
-        adapter = str(bot.type)
+        adapter: str = bot.type.lower().replace(' ', '.')  # type: ignore
         spec = importlib.util.find_spec(f'nonebot.adapters.{adapter}.message')
 
         if spec is not None:
