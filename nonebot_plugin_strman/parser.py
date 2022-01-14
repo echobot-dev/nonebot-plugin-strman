@@ -4,14 +4,16 @@ import json
 import random
 from functools import reduce
 from pathlib import Path
-from typing import Any, Dict, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, Dict, Optional, Type, Union
 
 import nonebot
 import yaml
-from nonebot.adapters import Bot, Message
 from nonebot.log import logger
 
-from nonebot_plugin_strman.config import Config
+from .config import Config
+
+if TYPE_CHECKING:
+    from nonebot.adapters import Bot, Message
 
 
 class Parser(object):
@@ -24,12 +26,12 @@ class Parser(object):
     - `message`：NoneBot 适配器对应 `Message` 实现。
     """
 
-    def __init__(self, bot: Type[Bot], **config: Any) -> None:
+    def __init__(self, bot: Type['Bot'], **config: Any) -> None:
         """
         解析器初始化。
         
         参数：
-        - `bot: Type[Bot]`：bot 对象；
+        - `bot: Type[Bot]`：Bot 对象；
         - `**config: Any`：配置参数。
         """
         init_conf = nonebot.get_driver().config.dict()
@@ -47,7 +49,7 @@ class Parser(object):
               /,
               *args: Any,
               profile: Optional[str] = None,
-              **kwargs: Any) -> Message:
+              **kwargs: Any) -> 'Message':
         """
         解析字符串标签获取内容。
         
@@ -68,7 +70,7 @@ class Parser(object):
         return self.message.template(raw).format(*args, **kwargs)
 
     @staticmethod
-    def _get_message_impl(bot: Type[Bot]) -> Type[Message]:
+    def _get_message_impl(bot: Type['Bot']) -> Type['Message']:
         """
         获取 bot 对应适配器的消息实现。
 

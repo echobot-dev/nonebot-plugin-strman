@@ -7,7 +7,7 @@ from nonebot.config import Config as NBConfig
 from nonebot.log import logger
 from nonebot.plugin.export import export
 
-from nonebot_plugin_strman.parser import Parser
+from .parser import Parser
 
 __version__ = version('nonebot_plugin_strman')
 
