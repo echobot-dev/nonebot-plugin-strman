@@ -3,14 +3,16 @@ import json
 import random
 from functools import reduce
 from pathlib import Path
-from typing import Any, Dict, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, Dict, Optional, Type, Union
 
 import nonebot
 import yaml
-from nonebot.adapters import Message
 from nonebot.log import logger
 
 from .config import Config
+
+if TYPE_CHECKING:
+    from nonebot.adapters import Message
 
 
 class Parser(object):
@@ -23,7 +25,7 @@ class Parser(object):
     - `impl`：NoneBot 适配器对应 `Message` 实现。
     """
 
-    def __init__(self, impl: Optional[Type[Message]], **config: Any) -> None:
+    def __init__(self, impl: Optional[Type['Message']], **config: Any) -> None:
         """
         解析器初始化。
         
@@ -46,7 +48,7 @@ class Parser(object):
               /,
               *args: Any,
               profile_ol: Optional[str] = None,
-              **kwargs: Any) -> Union[Message, str]:
+              **kwargs: Any) -> Union['Message', str]:
         """
         解析字符串标签获取内容。
         
