@@ -1,19 +1,16 @@
 """字符串管理解析器"""
-import importlib.util
 import json
 import random
 from functools import reduce
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Optional, Type, Union
+from typing import Any, Dict, Optional, Type, Union
 
 import nonebot
 import yaml
+from nonebot.adapters import Message
 from nonebot.log import logger
 
 from .config import Config
-
-if TYPE_CHECKING:
-    from nonebot.adapters import Bot, Message
 
 
 class Parser(object):
@@ -23,15 +20,15 @@ class Parser(object):
     属性：
     - `respath`：字符串预设文件资源目录；
     - `profile`：字符串预设文件名称；
-    - `message`：NoneBot 适配器对应 `Message` 实现。
+    - `impl`：NoneBot 适配器对应 `Message` 实现。
     """
 
-    def __init__(self, bot: Type['Bot'], **config: Any) -> None:
+    def __init__(self, impl: Optional[Type[Message]], **config: Any) -> None:
         """
         解析器初始化。
         
         参数：
-        - `bot: Type[Bot]`：Bot 对象；
+        - `impl: Type[Message]`：Message 实现；
         - `**config: Any`：配置参数。
         """
         init_conf = nonebot.get_driver().config.dict()
@@ -42,60 +39,37 @@ class Parser(object):
 
         self.respath = conf.strman_respath
         self.profile = conf.strman_profile
-        self.message = self._get_message_impl(bot)
+        self.impl = impl if impl else None
 
     def parse(self,
               tag: str,
               /,
               *args: Any,
-              profile: Optional[str] = None,
-              **kwargs: Any) -> 'Message':
+              profile_ol: Optional[str] = None,
+              **kwargs: Any) -> Union[Message, str]:
         """
         解析字符串标签获取内容。
         
         参数：
         - `tag: str`：字符串标签；
-        - `profile: Optional[str]`：字符串预设文件名称，默认为 `STRMAN_PROFILE`
-          所指定的默认预设配置；
+        - `profile_ol: Optional[str]`：字符串预设文件名称，默认为 
+          `STRMAN_PROFILE` 所指定的默认预设配置；
         - `*args, **kwargs: Any`：替换内容。
         
         返回：
-        - `Message`：被对应适配器的 `Message` 对象包装的解析内容。
+        - `Union[Message, str]`：字符串标签解析内容。指定 `Message` 实现时则包
+          装为 `Message` 对象，否则返回字符串。
         """
-        profile = profile if profile else self.profile
+        profile_ol = profile_ol if profile_ol else self.profile
 
-        profile_data = self._load_profile(profile)
+        profile_data = self._load_profile(profile_ol)
         raw = self._tag_parse(tag, profile_data)
 
-        return self.message.template(raw).format(*args, **kwargs)
-
-    @staticmethod
-    def _get_message_impl(bot: Type['Bot']) -> Type['Message']:
-        """
-        获取 bot 对应适配器的消息实现。
-
-        参数：
-        - `bot: Type[Bot]`：Bot 对象。
-
-        异常：
-        - `ValueError`：适配器不存在，或因适配器未安装，或获得的适配器名无效。
-
-        返回：
-        - `Type[Message]`：适配器消息实现。
-        """
-        adapter: str = bot.type.lower().replace(' ', '.')  # type: ignore
-        spec = importlib.util.find_spec(f'nonebot.adapters.{adapter}.message')
-
-        if spec is not None:
-            module = importlib.util.module_from_spec(spec)
-            loader = spec.loader
-            if loader is not None:
-                loader.exec_module(module)
-                logger.debug(f'Loaded {adapter} message module.')
-                return module.Message
-
-        raise ValueError(f'Adapter {adapter} not found. Maybe the adapter is '
-                         'not installed, or the adapter is invalid.')
+        if not self.impl:
+            logger.info(
+                "Message implementation is not specified. Use str instead.")
+            return raw.format(*args, **kwargs)
+        return self.impl.template(raw).format(*args, **kwargs)
 
     @staticmethod
     def _tag_parse(tag: str, contents: Dict[str, Any]) -> str:
@@ -118,15 +92,19 @@ class Parser(object):
             result: Any = reduce(lambda key, val: key[val], tag.split('.'),
                                  contents)
         except KeyError as err:
-            raise KeyError(f'Tag {tag} is invalid.') from err
+            raise KeyError(f"Tag {tag} is invalid.") from err
         else:
-            if isinstance(result, list):
-                if not any(isinstance(item, (dict, list)) for item in result):
+            if isinstance(result, (str, int, float, bool, list)):
+                logger.info("Tag {tag} parsed.")
+
+                if isinstance(result, list) and not any(
+                        isinstance(item, (dict, list)) for item in result):
+                    logger.info("Multiple results found. Randomly selected.")
                     return random.choice(result)
-            elif isinstance(result, (str, int, float, bool)):
                 return str(result)
+
             raise TypeError(
-                f'The content of tag {tag} is with unsupported type.')
+                f"The content of tag {tag} is with unsupported type.")
 
     def _load_profile(self, profile: Union[str, Path]) -> Dict[str, Any]:
         """
@@ -171,4 +149,6 @@ class Parser(object):
             else:
                 loaded = yaml.safe_load(file)
 
+        logger.info(
+            f"Load profile file successfully: {profile_file.absolute()}")
         return loaded
