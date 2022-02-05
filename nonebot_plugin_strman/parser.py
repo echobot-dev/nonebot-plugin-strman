@@ -33,6 +33,7 @@ class Parser(object):
         - `impl: Type[Message]`：Message 实现；
         - `**config: Any`：配置参数。
         """
+
         init_conf = nonebot.get_driver().config.dict()
         if config:
             init_conf.update(config)
@@ -62,6 +63,7 @@ class Parser(object):
         - `Union[Message, str]`：字符串标签解析内容。指定 `Message` 实现时则包
           装为 `Message` 对象，否则返回字符串。
         """
+
         profile_ol = profile_ol if profile_ol else self.profile
 
         profile_data = self._load_profile(profile_ol)
@@ -90,6 +92,7 @@ class Parser(object):
         - `str`：标签所指示的字符串内容。特别地，当 `contents` 中标签所对应的内
           容为多个时，则从中随机抽取值返回。
         """
+
         try:
             data: Any = reduce(lambda key, val: key[val], tag.split('.'),
                                contents)
@@ -128,13 +131,14 @@ class Parser(object):
         返回：
         - `Dict[str, Any]`：字符串预设文件内容。
         """
+
         accept_ext = {'.json', '.yml', '.yaml'}
 
-        is_profile_file = (Path(profile).is_file()
+        is_profile_file = ((self.respath / profile).is_file()
                            and Path(profile).suffix in accept_ext)
 
         if is_profile_file:
-            profile_file = Path(profile)
+            profile_file = self.respath / profile
         else:
             file_dir = profile if isinstance(profile, Path) else self.respath
             name = profile if isinstance(profile, str) else self.profile
