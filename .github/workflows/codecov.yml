@@ -1,4 +1,4 @@
-name: Coverage check
+name: Codecov check
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   codecov:
-    name: Coverage check
+    name: Codecov check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -30,8 +30,7 @@ jobs:
       - name: Generate coverage report
         run: |
           poetry add --dev pytest-cov
-          poetry shell
-          pytest --cov=./ --cov-report=xml
+          poetry run pytest --cov=./ --cov-report=xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
