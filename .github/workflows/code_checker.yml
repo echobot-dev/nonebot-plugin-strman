@@ -28,7 +28,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install -E all
+        run: poetry install
 
       - uses: dciborow/action-pylint@0.0.3
         with:
@@ -58,7 +58,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install -E all
+        run: poetry install
 
       - uses: jordemort/action-pyright@v1
         with:
