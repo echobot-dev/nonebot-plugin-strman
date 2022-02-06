@@ -30,7 +30,7 @@ class Parser(object):
         解析器初始化。
         
         参数：
-        - `impl: Type[Message]`：Message 实现；
+        - `impl: Type[Message]`：消息实现；
         - `**config: Any`：配置参数。
         """
 
@@ -60,8 +60,8 @@ class Parser(object):
         - `*args, **kwargs: Any`：替换内容。
         
         返回：
-        - `Union[Message, str]`：字符串标签解析内容。指定 `Message` 实现时则包
-          装为 `Message` 对象，否则返回字符串。
+        - `Union[Message, str]`：字符串标签解析内容。指定消息实现时则包装为指定
+          的 `Message` 对象，否则返回字符串。
         """
 
         profile_ol = profile_ol if profile_ol else self.profile
@@ -70,8 +70,10 @@ class Parser(object):
         raw = self._tag_parse(tag, profile_data)
 
         if not self.impl:
-            logger.info("Message implementation is not specified. Use str "
-                        "instead.")
+            logger.warning(
+                "Parsing tag as a string is not recommended, please pass a "
+                "valid 'Message' implementation while initializing parser to "
+                "decorate.")
             return raw.format(*args, **kwargs)
         return self.impl.template(raw).format(*args, **kwargs)
 

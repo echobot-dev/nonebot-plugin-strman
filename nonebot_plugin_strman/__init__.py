@@ -18,23 +18,34 @@ logger.info(f'Plugin loaded: nonebot_plugin_strman v{__version__}')
 
 @export()
 def init(impl: Optional[Type['Message']] = None,
-         config: Optional[Union[NBConfig, Dict[str, Any]]] = None) -> Parser:
+         **config: Union[NBConfig, Dict[str, Any], str]) -> Parser:
     """
     创建解析器对象。
 
     参数：
-    - `impl: Optional[Union[Type[Bot], Type[Message]]]`：适配器实现；
-    - `config: Optional[Union[nonebot.config.Config, Dict[str, Any]]]`：
-      插件配置。
+    - `impl: Optional[Union[Type[Message]]]`：消息实现；
+    - `**config: Union[nonebot.config.Config, Dict[str, Any], str]`：插件配置。
 
     返回：
     - `parser.Parser`：解析器对象。
     """
     if not config:
         parser = Parser(impl)
-    elif isinstance(config, dict):
-        parser = Parser(impl, **config)
+    elif (_config := config.pop('config', None)):
+        if isinstance(_config, dict):
+            parser = Parser(impl, **_config)
+        elif isinstance(_config, NBConfig):
+            parser = Parser(impl, **_config.dict())
+        else:
+            raise ValueError('Invalid config type')
     else:
-        parser = Parser(impl, **config.dict())
+        conf_attr = {
+            'strman_respath': config.pop('respath', None),
+            'strman_profile': config.pop('profile', None)
+        }
+        parser = Parser(
+            impl, **{k: v
+                     for k, v in conf_attr.items()
+                     if v is not None})
 
     return parser
