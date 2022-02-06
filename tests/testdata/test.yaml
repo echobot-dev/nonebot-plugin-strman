@@ -1,0 +1,24 @@
+---
+test:
+  dirname: test.yaml
+
+tag_value: Layer 1
+tag:
+  value: Layer 2
+  layer:
+    value: Layer 3
+    layer:
+      value: Layer 4
+tag_multiple_values:
+  - value 1
+  - value 2
+  - value 3
+  - value 4
+
+testchamber:
+  keyword: "{Subject} {ACTION} {object}."
+  positional: "{} {} {}."
+  indexed: "{2} you {0} a {0} as a {1} {0} {0} a {0}?"
+  mixed: "{} {kw}"
+  with_spec: "USD {base:.2f} approx. equals CNY {value:.2f} (data provided by {provider} on {date})."
+  with_extended_spec: "{:face} {logo:image}"

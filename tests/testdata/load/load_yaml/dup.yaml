@@ -1,0 +1,3 @@
+---
+test:
+  dirname: load/load_yml/dup.yaml
