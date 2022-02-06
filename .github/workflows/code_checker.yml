@@ -30,9 +30,6 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install
 
-      - name: Activate venv
-        run: source .venv/bin/activate
-
       - uses: dciborow/action-pylint@0.0.3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -63,11 +60,9 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install
 
-      - name: Activate venv
-        run: source .venv/bin/activate
-
       - uses: jordemort/action-pyright@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
+          venv_path: .venv
           lib: true
