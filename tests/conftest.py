@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 config = {
     'strman_respath': Path(__file__).parent / 'testdata',
-    'strman_profile': 'test'
+    'strman_profile': 'test',
 }
 
 

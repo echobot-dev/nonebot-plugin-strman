@@ -10,9 +10,13 @@ python = "^3.8"
 nonebot2 = "^2.0.0-beta.1"
 
 [tool.poetry.dev-dependencies]
+black = "^22.1.0"
 pylint = "^2.12.2"
-yapf = "^0.32.0"
-pytest = "^7.1.1"
+pytest = "^7.0.1"
+
+[tool.black]
+line-length = 79
+skip-string-normalization = true
 
 [tool.pyright]
 exclude = ["**/*.pyi", "tests/**"]
