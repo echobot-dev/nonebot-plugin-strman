@@ -5,6 +5,7 @@ on:
     paths:
       - nonebot_plugin_strman/**
       - tests/**
+      - poetry.lock
 
 jobs:
   unittest:
