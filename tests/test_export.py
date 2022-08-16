@@ -1,6 +1,8 @@
 import pytest
 
-from utils import FakeMessage
+from utils import make_fake_message
+
+Message = make_fake_message()
 
 
 def test_export_default(setup) -> None:
@@ -8,8 +10,8 @@ def test_export_default(setup) -> None:
 
     from nonebot import require
 
-    parser = require('nonebot_plugin_strman').init(FakeMessage)
-    assert parser.parse('test.dirname') == FakeMessage('test.yaml')
+    parser = require("nonebot_plugin_strman").init(Message)
+    assert parser("test.dirname") == Message("test.yaml")
 
 
 def test_export_with_extra_attr_config(setup) -> None:
@@ -17,12 +19,12 @@ def test_export_with_extra_attr_config(setup) -> None:
 
     from nonebot import require
 
-    parser = require('nonebot_plugin_strman').init(
-        FakeMessage,
-        respath='tests/testdata/load',
-        profile='load',
+    parser = require("nonebot_plugin_strman").init(
+        Message,
+        respath="tests/testdata/load",
+        profile="load",
     )
-    assert parser.parse('test.dirname') == FakeMessage('load/load.yaml')
+    assert parser("test.dirname") == Message("load/load.yaml")
 
 
 def test_export_with_extra_dict_config(setup) -> None:
@@ -31,12 +33,12 @@ def test_export_with_extra_dict_config(setup) -> None:
     from nonebot import require
 
     config = {
-        'strman_respath': 'tests/testdata/load',
-        'strman_profile': 'load',
+        "strman_respath": "tests/testdata/load",
+        "strman_profile": "load",
     }
 
-    parser = require('nonebot_plugin_strman').init(FakeMessage, config=config)
-    assert parser.parse('test.dirname') == FakeMessage('load/load.yaml')
+    parser = require("nonebot_plugin_strman").init(Message, config=config)
+    assert parser("test.dirname") == Message("load/load.yaml")
 
 
 def test_export_with_modify_nb_config(setup) -> None:
@@ -45,11 +47,11 @@ def test_export_with_modify_nb_config(setup) -> None:
     import nonebot
 
     config = nonebot.get_driver().config
-    config.strman_respath = 'tests/testdata/load'
-    config.strman_profile = 'load'
+    config.strman_respath = "tests/testdata/load"
+    config.strman_profile = "load"
 
-    parser = nonebot.require('nonebot_plugin_strman').init(FakeMessage)
-    assert parser.parse('test.dirname') == FakeMessage('load/load.yaml')
+    parser = nonebot.require("nonebot_plugin_strman").init(Message)
+    assert parser("test.dirname") == Message("load/load.yaml")
 
 
 def test_export_without_message_impl(setup) -> None:
@@ -57,10 +59,10 @@ def test_export_without_message_impl(setup) -> None:
 
     from nonebot import require
 
-    parser = require('nonebot_plugin_strman').init()
-    result = parser.parse('test.dirname')
+    parser = require("nonebot_plugin_strman").init()
+    result = parser("test.dirname")
     assert isinstance(result, str)
-    assert result == 'test.yaml'
+    assert result == "test.yaml"
 
 
 def test_export_with_unexpected_config(setup) -> None:
@@ -69,4 +71,4 @@ def test_export_with_unexpected_config(setup) -> None:
     from nonebot import require
 
     with pytest.raises(ValueError):
-        require('nonebot_plugin_strman').init(FakeMessage, config='config')
+        require("nonebot_plugin_strman").init(Message, config="config")

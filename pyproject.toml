@@ -1,18 +1,20 @@
 [tool.poetry]
 name = "nonebot-plugin-strman"
-version = "1.0.0"
+version = "1.1.0"
 description = "A string management tool for NoneBot 2"
 authors = ["Satoshi Jek <jks15satoshi@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-nonebot2 = "^2.0.0-beta.1"
+nonebot2 = "^2.0.0-beta.5"
 
 [tool.poetry.dev-dependencies]
+black = "^22.1.0"
 pylint = "^2.14.5"
-yapf = "^0.32.0"
 pytest = "^7.1.2"
+
+[tool.black]
 
 [tool.pyright]
 exclude = ["**/*.pyi", "tests/**"]

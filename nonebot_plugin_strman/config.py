@@ -12,7 +12,7 @@ class Config(BaseSettings):
     """
 
     strman_respath: Path = Path().cwd()
-    strman_profile: str = 'default'
+    strman_profile: str = "default"
 
     class Config(object):
-        extra = 'ignore'
+        extra = "ignore"

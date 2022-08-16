@@ -5,6 +5,7 @@ on:
     paths:
       - nonebot_plugin_strman/**
       - tests/**
+      - poetry.lock
 
 jobs:
   unittest:
@@ -42,5 +43,4 @@ jobs:
         run: poetry install
 
       - name: Run unit tests
-        run: |
-          poetry run pytest
+        run: poetry run pytest
