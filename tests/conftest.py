@@ -8,29 +8,30 @@ if TYPE_CHECKING:
     from nonebot.adapters import Message
 
 config = {
-    'strman_respath': Path(__file__).parent / 'testdata',
-    'strman_profile': 'test',
+    "strman_respath": Path(__file__).parent / "testdata",
+    "strman_profile": "test",
 }
 
 
 @pytest.fixture
 def setup() -> Iterator[None]:
-
     nonebot.init(**config)
-    nonebot.load_plugin('./nonebot_plugin_styledstr')
+    if not nonebot.get_plugin("nonebot_plugin_strman"):
+        nonebot.load_plugin("./nonebot_plugin_strman")
     yield
     nbconf = nonebot.get_driver().config
-    nbconf.strman_respath = Path(__file__).parent / 'testdata'
-    nbconf.strman_profile = 'test'
+    nbconf.strman_respath = Path(__file__).parent / "testdata"
+    nbconf.strman_profile = "test"
 
 
-@pytest.fixture(scope='module')
-def parser() -> Iterator[Type['Message']]:
-
-    from utils import FakeMessage
+@pytest.fixture(scope="module")
+def parser() -> Iterator[Type["Message"]]:
+    from utils import make_fake_message
 
     nonebot.init(**config)
-    nonebot.load_plugin('./nonebot_plugin_strman')
+    if not nonebot.get_plugin("nonebot_plugin_strman"):
+        nonebot.load_plugin("./nonebot_plugin_strman")
 
-    _parser = nonebot.require('nonebot_plugin_strman').init(FakeMessage)
-    yield _parser
+    Message = make_fake_message()
+
+    yield nonebot.require("nonebot_plugin_strman").init(Message)

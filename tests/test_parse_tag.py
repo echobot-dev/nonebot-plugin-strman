@@ -3,87 +3,87 @@ from typing import Any, Dict, Tuple, Union
 
 import pytest
 
-from utils import FakeMessage, FakeMessageSegment
+from utils import make_fake_message
+
+Message = make_fake_message()
+MessageSegment = Message.get_segment_class()
 
 
 def test_parse_tag(parser) -> None:
-
-    assert parser.parse('tag_value') == FakeMessage('Layer 1')
+    assert parser("tag_value").extract_plain_text() == "Layer 1"
 
 
 @pytest.mark.parametrize(
-    'tag, expected',
+    "tag, expected",
     [
-        ('tag.value', 'Layer 2'),
-        ('tag.layer.value', 'Layer 3'),
-        ('tag.layer.layer.value', 'Layer 4'),
+        ("tag.value", "Layer 2"),
+        ("tag.layer.value", "Layer 3"),
+        ("tag.layer.layer.value", "Layer 4"),
     ],
 )
 def test_parse_hierarchical_tag(parser, tag: str, expected: str) -> None:
-
-    assert parser.parse(tag) == FakeMessage(expected)
+    assert parser(tag).extract_plain_text() == expected
 
 
 def test_parse_tag_with_multiple_values(parser) -> None:
-
-    assert parser.parse('tag_multiple_values') in [
-        FakeMessage(f'value {i}') for i in range(1, 5)
+    assert parser("tag_multiple_values").extract_plain_text() in [
+        f"value {i}" for i in range(1, 5)
     ]
 
 
 @pytest.mark.parametrize(
-    'tag, args, kwargs, expected',
+    "tag, args, kwargs, expected",
     [
         (
-            'testchamber.keyword',
+            "testchamber.keyword",
             (),
             {
-                'Subject': 'The quick brown fox',
-                'ACTION': 'jumps over',
-                'object': 'the lazy dog',
+                "Subject": "The quick brown fox",
+                "ACTION": "jumps over",
+                "object": "the lazy dog",
             },
-            'The quick brown fox jumps over the lazy dog.',
+            "The quick brown fox jumps over the lazy dog.",
         ),
         (
-            'testchamber.positional',
-            ('Prepare for', 'unforeseen', 'consequences'),
+            "testchamber.positional",
+            ("Prepare for", "unforeseen", "consequences"),
             {},
-            'Prepare for unforeseen consequences.',
+            "Prepare for unforeseen consequences.",
         ),
         (
-            'testchamber.indexed',
-            ('can', 'canner', 'Can'),
+            "testchamber.indexed",
+            ("can", "canner", "Can"),
             {},
-            'Can you can a can as a canner can can a can?',
+            "Can you can a can as a canner can can a can?",
         ),
         (
-            'testchamber.mixed',
-            ('positional',),
-            {'kw': 'keyword'},
-            'positional keyword',
+            "testchamber.mixed",
+            ("positional",),
+            {"kw": "keyword"},
+            "positional keyword",
         ),
         (
-            'testchamber.with_spec',
+            "testchamber.with_spec",
             (),
             {
-                'base': 1,
-                'value': 6.3505,
-                'provider': 'OANDA',
-                'date': 'Jan 1, 2022',
+                "base": 1,
+                "value": 6.3505,
+                "provider": "OANDA",
+                "date": "Jan 1, 2022",
             },
             (
-                'USD 1.00 approx. equals CNY 6.35 (data provided by OANDA on '
-                'Jan 1, 2022).'
+                "USD 1.00 approx. equals CNY 6.35 (data provided by OANDA on "
+                "Jan 1, 2022)."
             ),
         ),
         (
-            'testchamber.with_extended_spec',
+            "testchamber.with_extended_spec",
             (42,),
-            {'logo': 'file:///path/to/logo.png'},
+            {"logo": "file:///path/to/logo.png"},
             (
-                FakeMessageSegment.face(42)
-                + ' '
-                + FakeMessageSegment.image('file:///path/to/logo.png')
+                MessageSegment.face(42)
+                + " "
+                + MessageSegment.image("file:///path/to/logo.png")
             ),
         ),
     ],
@@ -93,7 +93,9 @@ def test_parse_tag_with_format(
     tag: str,
     args: Tuple[Any, ...],
     kwargs: Dict[str, Any],
-    expected: Union[str, FakeMessageSegment],
+    expected: Union[str, MessageSegment],
 ) -> None:
-
-    assert parser.parse(tag, *args, **kwargs) == FakeMessage(expected)
+    assert (
+        parser(tag, *args, **kwargs).extract_plain_text()
+        == Message(expected).extract_plain_text()
+    )

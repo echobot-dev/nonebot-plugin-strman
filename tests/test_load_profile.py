@@ -3,20 +3,22 @@ from typing import Union
 
 import pytest
 
-from utils import FakeMessage
+from utils import make_fake_message
 
-assets_path = Path(__file__).parent / 'testdata'
+Message = make_fake_message()
+
+assets_path = Path(__file__).parent / "testdata"
 
 
 @pytest.mark.parametrize(
-    'path',
+    "path",
     [
         assets_path,
-        'tests/testdata',
+        "tests/testdata",
         assets_path.absolute(),
     ],
 )
-@pytest.mark.usefixtures('setup')
+@pytest.mark.usefixtures("setup")
 def test_load_profile_init(path: Union[str, Path]) -> None:
     """
     测试初始化后根据配置默认加载资源目录下的预设文件。
@@ -27,27 +29,25 @@ def test_load_profile_init(path: Union[str, Path]) -> None:
 
     from nonebot import require
 
-    config = {'strman_respath': path, 'strman_profile': 'test'}
-    parser = require('nonebot_plugin_strman').init(FakeMessage, config=config)
+    config = {"strman_respath": path, "strman_profile": "test"}
+    parser = require("nonebot_plugin_strman").init(Message, config=config)
 
-    assert parser.parse('test.dirname') == FakeMessage('test.yaml')
+    assert parser("test.dirname") == Message("test.yaml")
 
 
 @pytest.mark.parametrize(
-    'profile, expected',
+    "profile, expected",
     [
-        ('load', 'load/load.yaml'),
-        ('json_load.json', 'load/json_load.json'),
-        ('../test.yaml', 'test.yaml'),
-        ((assets_path / 'load' / 'load.yaml').absolute(), 'load/load.yaml'),
-        (assets_path / 'test.yaml', 'test.yaml'),
-        (assets_path, 'test.yaml'),
+        ("load", "load/load.yaml"),
+        ("json_load.json", "load/json_load.json"),
+        ("../test.yaml", "test.yaml"),
+        ((assets_path / "load" / "load.yaml").absolute(), "load/load.yaml"),
+        (assets_path / "test.yaml", "test.yaml"),
+        (assets_path, "test.yaml"),
     ],
 )
-@pytest.mark.usefixtures('setup')
-def test_load_profile_on_calling(
-    profile: Union[str, Path], expected: str
-) -> None:
+@pytest.mark.usefixtures("setup")
+def test_load_profile_on_calling(profile: Union[str, Path], expected: str) -> None:
     """
     测试运行时指定预设文件加载。
 
@@ -57,22 +57,20 @@ def test_load_profile_on_calling(
 
     from nonebot import require
 
-    config = {'strman_respath': assets_path / 'load'}
-    parser = require('nonebot_plugin_strman').init(FakeMessage, config=config)
+    config = {"strman_respath": assets_path / "load"}
+    parser = require("nonebot_plugin_strman").init(Message, config=config)
 
-    assert parser.parse('test.dirname', profile_ol=profile) == FakeMessage(
-        expected
-    )
+    assert parser("test.dirname", profile_ol=profile) == Message(expected)
 
 
 @pytest.mark.parametrize(
-    'respath, expected',
+    "respath, expected",
     [
-        (assets_path / 'load' / 'load_json', 'load/load_json/dup.json'),
-        (assets_path / 'load' / 'load_yaml', 'load/load_yml/dup.yaml'),
+        (assets_path / "load" / "load_json", "load/load_json/dup.json"),
+        (assets_path / "load" / "load_yaml", "load/load_yml/dup.yaml"),
     ],
 )
-@pytest.mark.usefixtures('setup')
+@pytest.mark.usefixtures("setup")
 def test_load_profile_priority(respath: Path, expected: str) -> None:
     """
     测试指定预设名称在资源目录下存在多个有效文件时的加载优先级处理。
@@ -80,7 +78,7 @@ def test_load_profile_priority(respath: Path, expected: str) -> None:
 
     from nonebot import require
 
-    config = {'strman_respath': respath, 'strman_profile': 'dup'}
-    parser = require('nonebot_plugin_strman').init(FakeMessage, config=config)
+    config = {"strman_respath": respath, "strman_profile": "dup"}
+    parser = require("nonebot_plugin_strman").init(Message, config=config)
 
-    assert parser.parse('test.dirname') == FakeMessage(expected)
+    assert parser("test.dirname") == Message(expected)
