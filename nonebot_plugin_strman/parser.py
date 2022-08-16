@@ -25,7 +25,7 @@ class Parser(object):
     - `impl`：NoneBot 适配器对应 `Message` 实现。
     """
 
-    def __init__(self, impl: Optional[Type['Message']], **config: Any) -> None:
+    def __init__(self, impl: Optional[Type["Message"]] = None, **config: Any) -> None:
         """
         解析器初始化。
 
@@ -42,16 +42,16 @@ class Parser(object):
 
         self.respath = conf.strman_respath
         self.profile = conf.strman_profile
-        self.impl = impl if impl else None
+        self.impl = impl
 
-    def parse(
+    def __call__(
         self,
         tag: str,
         /,
         *args: Any,
         profile_ol: Optional[str] = None,
         **kwargs: Any,
-    ) -> Union['Message', str]:
+    ) -> Union["Message", str]:
         """
         解析字符串标签获取内容。
 
@@ -66,16 +66,15 @@ class Parser(object):
           的 `Message` 对象，否则返回字符串。
         """
 
-        profile_ol = profile_ol if profile_ol else self.profile
+        profile_ol = profile_ol or self.profile
 
         profile_data = self._load_profile(profile_ol)
         raw = self._tag_parse(tag, profile_data)
 
         if not self.impl:
             logger.warning(
-                'Parsing tag as a string is not recommended, please pass a '
-                'valid "Message" implementation while initializing parser to '
-                'decorate.'
+                "Parsing tag as a string is not recommended, please pass a valid "
+                '"Message" implementation while initializing parser to decorate.'
             )
             return raw.format(*args, **kwargs)
         return self.impl.template(raw).format(*args, **kwargs)
@@ -99,25 +98,21 @@ class Parser(object):
         """
 
         try:
-            data: Any = reduce(
-                lambda key, val: key[val], tag.split('.'), contents
-            )
+            data: Any = reduce(lambda key, val: key[val], tag.split("."), contents)
         except KeyError as err:
-            raise KeyError(f'Tag {tag} is invalid.') from err
+            raise KeyError(f"Tag {tag} is invalid.") from err
         else:
             if isinstance(data, list) and not any(
                 isinstance(item, (dict, list)) for item in data
             ):
-                logger.debug('Multiple results found. Randomly selected.')
+                logger.debug("Multiple results found. Randomly selected.")
                 result = str(random.choice(data))
             elif isinstance(data, (str, int, float, bool)):
                 result = str(data)
             else:
-                raise TypeError(
-                    f'The content of tag {tag} is with ' 'unsupported type.'
-                )
+                raise TypeError(f"The content of tag {tag} is with unsupported type.")
 
-            logger.info(f'Tag {tag} parsed.')
+            logger.info(f"Tag {tag} parsed.")
             return result
 
     def _load_profile(self, profile: Union[str, Path]) -> Dict[str, Any]:
@@ -140,36 +135,28 @@ class Parser(object):
         - `Dict[str, Any]`：字符串预设文件内容。
         """
 
-        accept_ext = {'.json', '.yml', '.yaml'}
+        accept_ext = {".json", ".yml", ".yaml"}
 
-        is_profile_file = (self.respath / profile).is_file() and Path(
-            profile
-        ).suffix in accept_ext
-
-        if is_profile_file:
+        if (self.respath / profile).is_file() and Path(profile).suffix in accept_ext:
             profile_file = self.respath / profile
         else:
             file_dir = profile if isinstance(profile, Path) else self.respath
             name = profile if isinstance(profile, str) else self.profile
 
-            files = [
+            if files := [
                 file
                 for file in file_dir.iterdir()
                 if file.stem == name and file.suffix in accept_ext
-            ]
+            ]:
+                profile_file = sorted(files)[0]
+            else:
+                raise FileNotFoundError(f"Profile {name} not found.")
 
-            if not files:
-                raise FileNotFoundError(f'Profile {name} not found.')
-
-            profile_file = sorted(files)[0]
-
-        with profile_file.open(encoding='utf-8') as file:
-            if profile_file.suffix == '.json':
+        with profile_file.open(encoding="utf-8") as file:
+            if profile_file.suffix == ".json":
                 loaded = json.load(file)
             else:
                 loaded = yaml.safe_load(file)
 
-        logger.debug(
-            'Load profile file successfully: ' f'{profile_file.absolute()}'
-        )
+        logger.debug(f"Load profile file successfully: {profile_file.absolute()}")
         return loaded
