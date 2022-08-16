@@ -25,7 +25,7 @@ def setup() -> Iterator[None]:
 
 
 @pytest.fixture(scope="module")
-def parser() -> Iterator[Type["Message"]]:
+def parse() -> Iterator[Type["Message"]]:
     from utils import make_fake_message
 
     nonebot.init(**config)

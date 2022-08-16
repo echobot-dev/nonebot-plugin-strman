@@ -9,8 +9,8 @@ Message = make_fake_message()
 MessageSegment = Message.get_segment_class()
 
 
-def test_parse_tag(parser) -> None:
-    assert parser("tag_value").extract_plain_text() == "Layer 1"
+def test_parse_tag(parse) -> None:
+    assert parse("tag_value").extract_plain_text() == "Layer 1"
 
 
 @pytest.mark.parametrize(
@@ -21,12 +21,12 @@ def test_parse_tag(parser) -> None:
         ("tag.layer.layer.value", "Layer 4"),
     ],
 )
-def test_parse_hierarchical_tag(parser, tag: str, expected: str) -> None:
-    assert parser(tag).extract_plain_text() == expected
+def test_parse_hierarchical_tag(parse, tag: str, expected: str) -> None:
+    assert parse(tag).extract_plain_text() == expected
 
 
-def test_parse_tag_with_multiple_values(parser) -> None:
-    assert parser("tag_multiple_values").extract_plain_text() in [
+def test_parse_tag_with_multiple_values(parse) -> None:
+    assert parse("tag_multiple_values").extract_plain_text() in [
         f"value {i}" for i in range(1, 5)
     ]
 
@@ -89,13 +89,18 @@ def test_parse_tag_with_multiple_values(parser) -> None:
     ],
 )
 def test_parse_tag_with_format(
-    parser,
+    parse,
     tag: str,
     args: Tuple[Any, ...],
     kwargs: Dict[str, Any],
     expected: Union[str, MessageSegment],
 ) -> None:
     assert (
-        parser(tag, *args, **kwargs).extract_plain_text()
+        parse(tag, *args, **kwargs).extract_plain_text()
         == Message(expected).extract_plain_text()
     )
+
+
+def test_parse_tag_with_deprecated_method(parse) -> None:
+    with pytest.deprecated_call():
+        assert parse.parse("tag_value").extract_plain_text() == "Layer 1"
