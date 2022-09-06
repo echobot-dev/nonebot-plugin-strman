@@ -10,7 +10,7 @@ python = "^3.8"
 nonebot2 = "^2.0.0-beta.5"
 
 [tool.poetry.dev-dependencies]
-black = "^22.1.0"
+black = "^22.8.0"
 pylint = "^2.15.0"
 pytest = "^7.1.3"
 
