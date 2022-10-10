@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "nonebot-plugin-strman"
-version = "1.1.0"
+version = "1.1.1"
 description = "A string management tool for NoneBot 2"
 authors = ["Satoshi Jek <jks15satoshi@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-nonebot2 = "^2.0.0-beta.5"
+nonebot2 = "2.0.0-beta.5"
 
 [tool.poetry.dev-dependencies]
 black = "^22.8.0"
