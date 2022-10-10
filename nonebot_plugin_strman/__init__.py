@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Type, Union
 
 from nonebot.config import Config as NBConfig
 from nonebot.log import logger
-from nonebot.plugin.export import export
 
 from .parser import Parser
 
@@ -15,7 +14,6 @@ __version__ = version("nonebot_plugin_strman")
 logger.success(f"Plugin loaded: <b>NoneBot String Manager v{__version__}</b>")
 
 
-@export()
 def init(
     impl: Optional[Type["Message"]] = None,
     **config: Union[NBConfig, Dict[str, Any], str],

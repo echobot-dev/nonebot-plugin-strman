@@ -1,7 +1,6 @@
 """字符串管理解析器"""
 import json
 import random
-import warnings
 from functools import reduce
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Optional, Type, Union
@@ -77,43 +76,6 @@ class Parser(object):
             )
             return raw.format(*args, **kwargs)
         return self.impl.template(raw).format(*args, **kwargs)
-
-    def parse(
-        self,
-        tag: str,
-        /,
-        *args: Any,
-        profile_ol: Optional[str] = None,
-        **kwargs: Any,
-    ) -> Union["Message", str]:
-        """
-        解析字符串标签获取内容。
-
-        此方法将在 v1.2 后弃用，请直接调用实例对象：
-
-        ```python
-        >>> parser = Parser(...)
-        >>> parser(tag, *args, **kwargs)
-        ```
-        ---
-        参数：
-        - `tag: str`：字符串标签；
-        - `profile_ol: Optional[str]`：重载字符串预设名称，默认遵循
-          `STRMAN_PROFILE` 所指定的默认预设配置；
-        - `*args, **kwargs: Any`：替换内容。
-
-        返回：
-        - `Union[Message, str]`：字符串标签解析内容。指定消息实现时则包装为指定
-          的 `Message` 对象，否则返回字符串。
-        """
-        warnings.warn(
-            (
-                "This method is about to be deprecated in v1.2. You should now call "
-                "the instance object directly."
-            ),
-            category=DeprecationWarning,
-        )
-        return self.__call__(tag, *args, profile_ol=profile_ol, **kwargs)
 
     @staticmethod
     def _tag_parse(tag: str, contents: Dict[str, Any]) -> str:

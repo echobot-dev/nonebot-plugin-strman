@@ -99,8 +99,3 @@ def test_parse_tag_with_format(
         parse(tag, *args, **kwargs).extract_plain_text()
         == Message(expected).extract_plain_text()
     )
-
-
-def test_parse_tag_with_deprecated_method(parse) -> None:
-    with pytest.deprecated_call():
-        assert parse.parse("tag_value").extract_plain_text() == "Layer 1"
